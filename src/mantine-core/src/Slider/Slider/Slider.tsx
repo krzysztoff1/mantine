@@ -14,6 +14,8 @@ import { Thumb, ThumbStylesNames } from '../Thumb/Thumb';
 import { Track, TrackStylesNames } from '../Track/Track';
 import { MarksStylesNames } from '../Marks/Marks';
 import { SliderRoot, SliderRootStylesNames } from '../SliderRoot/SliderRoot';
+import { getFloatingValue } from '../get-floating-value';
+import { getPrecision } from '../get-precision';
 
 export type SliderStylesNames =
   | SliderRootStylesNames
@@ -132,7 +134,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((props, ref) => {
     min,
     max,
     step,
-    precision,
+    precision: _precision,
     defaultValue,
     name,
     marks,
@@ -153,6 +155,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((props, ref) => {
     ...others
   } = useComponentDefaultProps('Slider', defaultProps, props);
 
+  const precision = _precision ?? getPrecision(step);
   const theme = useMantineTheme();
   const [hovered, setHovered] = useState(false);
   const [_value, setValue] = useUncontrolled({
@@ -177,7 +180,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((props, ref) => {
         valueRef.current = nextValue;
       }
     },
-    [disabled, min, max, step, precision]
+    [disabled, min, max, step, precision, setValue]
   );
 
   const { ref: container, active } = useMove(
@@ -192,7 +195,10 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((props, ref) => {
         case 'ArrowUp': {
           event.preventDefault();
           thumb.current.focus();
-          const nextValue = Math.min(Math.max(_value + step, min), max);
+          const nextValue = getFloatingValue(
+            Math.min(Math.max(_value + step, min), max),
+            precision
+          );
           onChangeEnd?.(nextValue);
           setValue(nextValue);
           break;
@@ -201,9 +207,9 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((props, ref) => {
         case 'ArrowRight': {
           event.preventDefault();
           thumb.current.focus();
-          const nextValue = Math.min(
-            Math.max(theme.dir === 'rtl' ? _value - step : _value + step, min),
-            max
+          const nextValue = getFloatingValue(
+            Math.min(Math.max(theme.dir === 'rtl' ? _value - step : _value + step, min), max),
+            precision
           );
           onChangeEnd?.(nextValue);
           setValue(nextValue);
@@ -213,7 +219,10 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((props, ref) => {
         case 'ArrowDown': {
           event.preventDefault();
           thumb.current.focus();
-          const nextValue = Math.min(Math.max(_value - step, min), max);
+          const nextValue = getFloatingValue(
+            Math.min(Math.max(_value - step, min), max),
+            precision
+          );
           onChangeEnd?.(nextValue);
           setValue(nextValue);
           break;
@@ -222,9 +231,9 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((props, ref) => {
         case 'ArrowLeft': {
           event.preventDefault();
           thumb.current.focus();
-          const nextValue = Math.min(
-            Math.max(theme.dir === 'rtl' ? _value + step : _value - step, min),
-            max
+          const nextValue = getFloatingValue(
+            Math.min(Math.max(theme.dir === 'rtl' ? _value + step : _value - step, min), max),
+            precision
           );
           onChangeEnd?.(nextValue);
           setValue(nextValue);
@@ -273,6 +282,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((props, ref) => {
         filled={position}
         marks={marks}
         size={size}
+        thumbSize={thumbSize}
         radius={radius}
         color={color}
         min={min}

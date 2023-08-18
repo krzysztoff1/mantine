@@ -80,7 +80,7 @@ export interface PopoverBaseProps {
   withinPortal?: boolean;
 
   /** Props to pass down to the portal when withinPortal is true */
-  portalProps?: PortalProps;
+  portalProps?: Omit<PortalProps, 'children' | 'withinPortal'>;
 
   /** Dropdown z-index */
   zIndex?: React.CSSProperties['zIndex'];
@@ -222,10 +222,11 @@ export function Popover(props: PopoverProps) {
     onClose,
   });
 
-  useClickOutside(() => closeOnClickOutside && popover.onClose(), clickOutsideEvents, [
-    targetNode,
-    dropdownNode,
-  ]);
+  useClickOutside(
+    () => popover.opened && closeOnClickOutside && popover.onClose(),
+    clickOutsideEvents,
+    [targetNode, dropdownNode]
+  );
 
   const reference = useCallback(
     (node: HTMLElement) => {

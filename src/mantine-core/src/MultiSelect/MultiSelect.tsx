@@ -200,6 +200,7 @@ export const MultiSelect = forwardRef<HTMLInputElement, MultiSelectProps>((props
     onDropdownOpen,
     maxSelectedValues,
     withinPortal,
+    portalProps,
     switchDirectionOnFlip,
     zIndex,
     selectOnBlur,
@@ -231,7 +232,7 @@ export const MultiSelect = forwardRef<HTMLInputElement, MultiSelectProps>((props
   const itemsRefs = useRef<Record<string, HTMLDivElement>>({});
   const uuid = useId(id);
   const [dropdownOpened, setDropdownOpened] = useState(initiallyOpened);
-  const [hovered, setHovered] = useState(-1);
+  const [_hovered, setHovered] = useState(-1);
   const [direction, setDirection] = useState<React.CSSProperties['flexDirection']>('column');
   const [_searchValue, handleSearchChange] = useUncontrolled({
     value: searchValue,
@@ -297,6 +298,13 @@ export const MultiSelect = forwardRef<HTMLInputElement, MultiSelectProps>((props
     disableSelectedItemFiltering,
   });
 
+  if (isCreatable && shouldCreate(_searchValue, sortedData)) {
+    createLabel = getCreateLabel(_searchValue);
+    filteredData.push({ label: _searchValue, value: _searchValue, creatable: true });
+  }
+
+  const hovered = Math.min(_hovered, filteredData.length - 1);
+
   const getNextIndex = (
     index: number,
     nextItem: (index: number) => number,
@@ -356,9 +364,6 @@ export const MultiSelect = forwardRef<HTMLInputElement, MultiSelectProps>((props
         if (_value.length === maxSelectedValues - 1) {
           valuesOverflow.current = true;
           setDropdownOpened(false);
-        }
-        if (hovered === filteredData.length - 1) {
-          setHovered(filteredData.length - 2);
         }
         if (filteredData.length === 1) {
           setDropdownOpened(false);
@@ -541,7 +546,7 @@ export const MultiSelect = forwardRef<HTMLInputElement, MultiSelectProps>((props
       return selectedItem;
     })
     .filter((val) => !!val)
-    .map((item) => (
+    .map((item, index) => (
       <Value
         {...item}
         variant={variant}
@@ -558,6 +563,7 @@ export const MultiSelect = forwardRef<HTMLInputElement, MultiSelectProps>((props
         styles={styles}
         classNames={classNames}
         radius={radius}
+        index={index}
       />
     ));
 
@@ -571,11 +577,6 @@ export const MultiSelect = forwardRef<HTMLInputElement, MultiSelectProps>((props
       valuesOverflow.current = false;
     }
   };
-
-  if (isCreatable && shouldCreate(_searchValue, sortedData)) {
-    createLabel = getCreateLabel(_searchValue);
-    filteredData.push({ label: _searchValue, value: _searchValue, creatable: true });
-  }
 
   const shouldRenderDropdown =
     !readOnly && (filteredData.length > 0 ? dropdownOpened : dropdownOpened && !!nothingFound);
@@ -615,6 +616,7 @@ export const MultiSelect = forwardRef<HTMLInputElement, MultiSelectProps>((props
         transitionProps={transitionProps}
         shadow="sm"
         withinPortal={withinPortal}
+        portalProps={portalProps}
         __staticSelector="MultiSelect"
         onDirectionChange={setDirection}
         switchDirectionOnFlip={switchDirectionOnFlip}

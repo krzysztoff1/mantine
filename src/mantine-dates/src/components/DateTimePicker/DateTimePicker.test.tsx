@@ -7,6 +7,7 @@ import {
   itSupportsProviderVariant,
   itSupportsProviderSize,
   itSupportsFocusEvents,
+  itDisablesInputInsideDisabledFieldset,
 } from '@mantine/tests';
 import { DatesProvider } from '../DatesProvider';
 import {
@@ -72,6 +73,7 @@ describe('@mantine/dates/DateTimePicker', () => {
     defaultValue: new Date(2022, 3, 11),
     popoverProps: { opened: true, withinPortal: false, transitionProps: { duration: 0 } },
   });
+  itDisablesInputInsideDisabledFieldset(DateTimePicker, defaultProps);
 
   it('toggles popover when input is clicked (dropdownType="popover")', async () => {
     const { container } = render(<DateTimePicker {...defaultProps} />);
@@ -114,6 +116,26 @@ describe('@mantine/dates/DateTimePicker', () => {
     expectOpenedPopover(container);
 
     await userEvent.click(getSubmitButton());
+    expectNoPopover(container);
+  });
+
+  it('closes when a submit button onClick handler is provided', async () => {
+    const spy = jest.fn();
+    const { container } = render(
+      <DateTimePicker
+        {...defaultProps}
+        submitButtonProps={{
+          onClick: spy,
+          'aria-label': defaultProps.submitButtonProps['aria-label'],
+        }}
+      />
+    );
+    await clickInput(container);
+    expectOpenedPopover(container);
+
+    await userEvent.click(getSubmitButton());
+
+    expect(spy).toHaveBeenCalled();
     expectNoPopover(container);
   });
 

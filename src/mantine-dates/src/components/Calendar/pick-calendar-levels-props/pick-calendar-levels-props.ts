@@ -5,6 +5,8 @@ export function pickCalendarProps<T extends Record<string, any>>(props: T) {
     defaultLevel,
     level,
     onLevelChange,
+    nextIcon,
+    previousIcon,
     date,
     defaultDate,
     onDateChange,
@@ -21,6 +23,7 @@ export function pickCalendarProps<T extends Record<string, any>>(props: T) {
     onPreviousYear,
     onNextDecade,
     onPreviousDecade,
+    withCellSpacing,
     __updateDateOnYearSelect,
     __updateDateOnMonthSelect,
 
@@ -64,6 +67,8 @@ export function pickCalendarProps<T extends Record<string, any>>(props: T) {
       defaultLevel,
       level,
       onLevelChange,
+      nextIcon,
+      previousIcon,
       date,
       defaultDate,
       onDateChange,
@@ -80,6 +85,7 @@ export function pickCalendarProps<T extends Record<string, any>>(props: T) {
       onPreviousYear,
       onNextDecade,
       onPreviousDecade,
+      withCellSpacing,
       __updateDateOnYearSelect,
       __updateDateOnMonthSelect,
 

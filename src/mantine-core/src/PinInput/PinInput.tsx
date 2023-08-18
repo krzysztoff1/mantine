@@ -204,9 +204,22 @@ export const PinInput = forwardRef<HTMLDivElement, PinInputProps>((props, ref) =
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (event.key === 'Backspace') {
-      if ((event.target as HTMLInputElement).value !== '') {
-        setFieldValue('', index);
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      focusInputField('prev', index);
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      focusInputField('next', index);
+    } else if (event.key === 'Delete') {
+      event.preventDefault();
+      setFieldValue('', index);
+    } else if (event.key === 'Backspace') {
+      event.preventDefault();
+      setFieldValue('', index);
+      if (length === index + 1) {
+        if ((event.target as HTMLInputElement).value === '') {
+          focusInputField('prev', index);
+        }
       } else {
         focusInputField('prev', index);
       }

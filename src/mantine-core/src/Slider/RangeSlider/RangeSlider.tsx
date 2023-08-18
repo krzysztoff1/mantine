@@ -15,6 +15,8 @@ import { Thumb, ThumbStylesNames } from '../Thumb/Thumb';
 import { Track, TrackStylesNames } from '../Track/Track';
 import { MarksStylesNames } from '../Marks/Marks';
 import { SliderRoot, SliderRootStylesNames } from '../SliderRoot/SliderRoot';
+import { getFloatingValue } from '../get-floating-value';
+import { getPrecision } from '../get-precision';
 
 export type RangeSliderStylesNames =
   | SliderRootStylesNames
@@ -148,7 +150,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>((props, 
     minRange,
     maxRange,
     step,
-    precision,
+    precision: _precision,
     defaultValue,
     name,
     marks,
@@ -170,6 +172,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>((props, 
     ...others
   } = useComponentDefaultProps('RangeSlider', defaultProps, props);
 
+  const precision = _precision ?? getPrecision(step);
   const theme = useMantineTheme();
   const [focused, setFocused] = useState(-1);
   const [hovered, setHovered] = useState(false);
@@ -295,7 +298,10 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>((props, 
           const focusedIndex = getFocusedThumbIndex();
           thumbs.current[focusedIndex].focus();
           setRangedValue(
-            Math.min(Math.max(valueRef.current[focusedIndex] + step, min), max),
+            getFloatingValue(
+              Math.min(Math.max(valueRef.current[focusedIndex] + step, min), max),
+              precision
+            ),
             focusedIndex,
             true
           );
@@ -306,14 +312,17 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>((props, 
           const focusedIndex = getFocusedThumbIndex();
           thumbs.current[focusedIndex].focus();
           setRangedValue(
-            Math.min(
-              Math.max(
-                theme.dir === 'rtl'
-                  ? valueRef.current[focusedIndex] - step
-                  : valueRef.current[focusedIndex] + step,
-                min
+            getFloatingValue(
+              Math.min(
+                Math.max(
+                  theme.dir === 'rtl'
+                    ? valueRef.current[focusedIndex] - step
+                    : valueRef.current[focusedIndex] + step,
+                  min
+                ),
+                max
               ),
-              max
+              precision
             ),
             focusedIndex,
             true
@@ -326,7 +335,10 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>((props, 
           const focusedIndex = getFocusedThumbIndex();
           thumbs.current[focusedIndex].focus();
           setRangedValue(
-            Math.min(Math.max(valueRef.current[focusedIndex] - step, min), max),
+            getFloatingValue(
+              Math.min(Math.max(valueRef.current[focusedIndex] - step, min), max),
+              precision
+            ),
             focusedIndex,
             true
           );
@@ -337,14 +349,17 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>((props, 
           const focusedIndex = getFocusedThumbIndex();
           thumbs.current[focusedIndex].focus();
           setRangedValue(
-            Math.min(
-              Math.max(
-                theme.dir === 'rtl'
-                  ? valueRef.current[focusedIndex] + step
-                  : valueRef.current[focusedIndex] - step,
-                min
+            getFloatingValue(
+              Math.min(
+                Math.max(
+                  theme.dir === 'rtl'
+                    ? valueRef.current[focusedIndex] + step
+                    : valueRef.current[focusedIndex] - step,
+                  min
+                ),
+                max
               ),
-              max
+              precision
             ),
             focusedIndex,
             true
@@ -393,6 +408,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>((props, 
         marks={marks}
         inverted={inverted}
         size={size}
+        thumbSize={thumbSize}
         radius={radius}
         color={color}
         min={min}

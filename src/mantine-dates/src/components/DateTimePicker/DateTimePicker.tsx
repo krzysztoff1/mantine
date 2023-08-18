@@ -9,7 +9,7 @@ import {
   DefaultProps,
   INPUT_SIZES,
 } from '@mantine/core';
-import { useDisclosure, useUncontrolled, useDidUpdate } from '@mantine/hooks';
+import { useDisclosure, useUncontrolled, useDidUpdate, useMergedRef } from '@mantine/hooks';
 import { assignTime } from '../../utils';
 import { TimeInput, TimeInputProps } from '../TimeInput';
 import { pickCalendarProps, CalendarBaseProps, CalendarSettings } from '../Calendar';
@@ -43,7 +43,7 @@ export interface DateTimePickerProps
   onChange?(value: DateValue): void;
 
   /** TimeInput component props */
-  timeInputProps?: TimeInputProps;
+  timeInputProps?: TimeInputProps & { ref?: React.ComponentPropsWithRef<'input'>['ref'] };
 
   /** Props added to submit button */
   submitButtonProps?: ActionIconProps & React.ComponentPropsWithoutRef<'button'>;
@@ -90,6 +90,7 @@ export const DateTimePicker = forwardRef<HTMLButtonElement, DateTimePickerProps>
   });
 
   const timeInputRef = useRef<HTMLInputElement>();
+  const timeInputRefMerged = useMergedRef(timeInputRef, timeInputProps?.ref);
 
   const {
     calendarProps: { allowSingleDateInRange, ...calendarProps },
@@ -204,7 +205,7 @@ export const DateTimePicker = forwardRef<HTMLButtonElement, DateTimePickerProps>
           <TimeInput
             value={timeValue}
             withSeconds={withSeconds}
-            ref={timeInputRef}
+            ref={timeInputRefMerged}
             unstyled={unstyled}
             {...timeInputProps}
             className={cx(classes.timeInput, timeInputProps?.className)}
@@ -217,16 +218,16 @@ export const DateTimePicker = forwardRef<HTMLButtonElement, DateTimePickerProps>
           <ActionIcon<'button'>
             variant="default"
             size={INPUT_SIZES[size]}
-            onClick={(event) => {
-              submitButtonProps?.onClick?.(event);
-              dropdownHandlers.close();
-            }}
             unstyled={unstyled}
             data-mantine-stop-propagation={__stopPropagation || undefined}
             // children prop is required to allow overriding icon with submitButtonProps
             // eslint-disable-next-line react/no-children-prop
             children={<CheckIcon width={`calc(${INPUT_SIZES[size]} / 3)`} />}
             {...submitButtonProps}
+            onClick={(event) => {
+              submitButtonProps?.onClick?.(event);
+              dropdownHandlers.close();
+            }}
           />
         </div>
       )}
